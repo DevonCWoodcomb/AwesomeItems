@@ -10,3 +10,5 @@ public class AwesomeItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new AwesomeItemsListener(), this);	
 	}	
 }
+
+penis
