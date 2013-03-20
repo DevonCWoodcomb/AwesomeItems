@@ -1,4 +1,4 @@
-//Testing2
+//Testing
 package net.somethingsuperawesome.awesomeitems;
 
 import org.bukkit.plugin.java.JavaPlugin;
