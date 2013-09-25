@@ -1,10 +1,11 @@
 package net.somethingsuperawesome.awesomeitems;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
 //import java.util.logging.Logger;
 
+import java.util.logging.Logger;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,111 +13,139 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+
 import org.bukkit.inventory.ItemStack;
 
 public class AwesomeItemsListener implements Listener
 {
-	private final String legendaryCode = ""+ChatColor.RED + ChatColor.GREEN + ChatColor.BLUE + ChatColor.BLACK;
-	private List<AwesomeItemsStoredPlayerItems> storedPlayers = new ArrayList<AwesomeItemsStoredPlayerItems>();
-	//public Logger log = Logger.getLogger("Minecraft");
+	//private final String legendaryCode = ""+ChatColor.RED + ChatColor.GREEN + ChatColor.BLUE + ChatColor.BLACK;
+	//private List<AwesomeItemsStoredPlayerItems> storedPlayers = new ArrayList<AwesomeItemsStoredPlayerItems>();
+	public Logger log = Logger.getLogger("Minecraft");
 	public AwesomeItemsListener(){}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event)
 	{
-		if(event.getPlayer().getItemInHand().hasItemMeta())
+		ItemStack item = event.getPlayer().getItemInHand();
+		if(item.hasItemMeta())
 		{
-			if(event.getPlayer().getItemInHand().getItemMeta().hasLore())
+			if(item.getItemMeta().hasLore())
 			{
-				if(event.getPlayer().getItemInHand().getItemMeta().getLore().get(0).startsWith(legendaryCode))
+				String lore0 = item.getItemMeta().getLore().get(0);
+				if(AwesomeItem.isAwesomeItem(lore0))
 				{
-					event.getPlayer().getItemInHand().setDurability((short)0);
+					if(!AwesomeItem.canBreakBlock(lore0))
+					{
+						event.setCancelled(true);
+						event.getPlayer().sendMessage(ChatColor.RED+"You can't break blocks with this item!");
+						return;
+					}
+					if(!AwesomeItem.canTakeDurability(lore0))
+					{
+						//log.info("I am here, max dura is = " + item.getType().getMaxDurability()+" and current is: "+item.getDurability());
+						item.setDurability((short)0);
+					}
 				}
 			}
 		}
 	}
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerDropItem(PlayerDropItemEvent event)
 	{
 		 if(event.getItemDrop().getItemStack().hasItemMeta())
 		 {
 			 if(event.getItemDrop().getItemStack().getItemMeta().hasLore())
 			 {
-				 if(event.getItemDrop().getItemStack().getItemMeta().getLore().get(0).startsWith(legendaryCode))
+				 String lore0 = event.getItemDrop().getItemStack().getItemMeta().getLore().get(0);
+				 if(AwesomeItem.isAwesomeItem(lore0))
 				 {
-					 event.setCancelled(true);
-					 event.getPlayer().sendMessage(ChatColor.RED+"You can't drop a Legendary Item!");
+					 if(!AwesomeItem.canDrop(lore0))
+					 {
+						 event.setCancelled(true);
+						 event.getPlayer().sendMessage(ChatColor.RED+"You can't drop this Item!");
+					 }
 				 }
 			 }
 		 }
 		
 	}
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerDeath(PlayerDeathEvent event)
 	{
-		boolean store = false;
-		for(Iterator<ItemStack> it = event.getDrops().iterator(); it.hasNext();)
+		ItemStack[] items = event.getEntity().getInventory().getContents();
+		ItemStack[] armor = event.getEntity().getInventory().getArmorContents();
+		for(int k = 0; k < items.length; k++)
 		{
-			ItemStack is = it.next();
-			//log.info("Item: "+ is.toString());
-			if(is.hasItemMeta())
+			ItemStack is = items[k];
+			breakto: 
 			{
-				if(is.getItemMeta().hasLore())
+				if(is != null && is.hasItemMeta())
 				{
-					//log.info("Lore: "+is.getItemMeta().getLore().get(0)+ " LC: "+legendaryCode);
-					if(is.getItemMeta().getLore().get(0).startsWith(legendaryCode))
+					if(is.getItemMeta().hasLore())
 					{
-						//log.info("Item matched, don't drop!");
-						storePlayer(event.getEntity(), store, is);
-						it.remove();
-						store = true;
+						String lore0 = is.getItemMeta().getLore().get(0);
+						if(AwesomeItem.isAwesomeItem(lore0))
+						{
+							if(!AwesomeItem.dropOnDeath(lore0))
+							{
+								event.getDrops().remove(is);
+								break breakto;
+							}
+						}
 					}
 				}
+				items[k] = null;
 			}
 		}
-	}
-	private void storePlayer(Player p, Boolean store, ItemStack is)
-	{
-		boolean stored = store;
-		if(stored)
+		for(int k = 0; k < armor.length; k++)
 		{
-			//log.info("Attempting to add");
-			for(AwesomeItemsStoredPlayerItems spi : storedPlayers)
+			ItemStack is = armor[k];
+			breaktwo: 
 			{
-				if(spi.isPlayer(p))
+				if(is != null && is.hasItemMeta())
 				{
-					//log.info("adding");
-					spi.addItem(is);
-				}			
+					if(is.getItemMeta().hasLore())
+					{
+						String lore0 = is.getItemMeta().getLore().get(0);
+						if(AwesomeItem.isAwesomeItem(lore0))
+						{
+							if(!AwesomeItem.dropOnDeath(lore0))
+							{
+								event.getDrops().remove(is);
+								break breaktwo;
+							}
+						}
+					}
+				}
+				armor[k] = null;
 			}
 		}
-		if(!stored)
-		{
-			//log.info("Adding new");
-			storedPlayers.add(new AwesomeItemsStoredPlayerItems(p, is));
-		}
-		
+		returnItems(event.getEntity(), items);
+		returnArmor(event.getEntity(), armor);
 	}
-	@EventHandler
-	public void onPlayerResspawn(PlayerRespawnEvent event)
+	public void returnItems(final Player player, final ItemStack[] is)
 	{
-		
-		restoreItems(event.getPlayer());
-	}
-
-	private void restoreItems(Player p)
-	{
-		for(Iterator<AwesomeItemsStoredPlayerItems> it = storedPlayers.iterator(); it.hasNext();)
+		Bukkit.getScheduler().runTaskAsynchronously(AwesomeItems.plugin, new Runnable()
 		{
-			AwesomeItemsStoredPlayerItems spi = it.next();
-			//log.info("there are some items here");
-			if(spi.isPlayer(p))
+			@Override
+			public void run()
 			{
-				//log.info("Found a match, restoring");
-				spi.restoreItems(p);
-				it.remove();
+				player.getInventory().setContents(is);
+				
 			}
-		}
+		});
+	}
+	
+	public void returnArmor(final Player player, final ItemStack[] is)
+	{
+		Bukkit.getScheduler().runTaskAsynchronously(AwesomeItems.plugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				player.getInventory().setArmorContents(is);
+				
+			}
+		});
 	}
 }
