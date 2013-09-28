@@ -1,3 +1,7 @@
 name: AwesomeItems
 main: net.somethingsuperawesome.awesomeitems.AwesomeItems
 version: 1.0
+commands:
+   awesomeitem:
+      usage: /<command> <item>
+      aliases: [ai,aweit]
