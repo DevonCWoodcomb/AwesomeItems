@@ -1,11 +1,11 @@
-package net.somethingsuperawesome.awesomeitems;
+package net.playssa.awesomeitems;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import net.somethingsuperawesome.awesomeitems.AwesomeItem.Flag;
+import net.playssa.awesomeitems.AwesomeItem.Flag;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

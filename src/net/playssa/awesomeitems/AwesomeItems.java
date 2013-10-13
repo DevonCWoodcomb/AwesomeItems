@@ -1,5 +1,5 @@
 //Testing
-package net.somethingsuperawesome.awesomeitems;
+package net.playssa.awesomeitems;
 
 import java.util.Map;
 import java.util.logging.Logger;

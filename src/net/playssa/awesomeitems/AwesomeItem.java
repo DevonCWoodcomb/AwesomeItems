@@ -1,4 +1,4 @@
-package net.somethingsuperawesome.awesomeitems;
+package net.playssa.awesomeitems;
 
 import java.util.ArrayList;
 import java.util.HashMap;

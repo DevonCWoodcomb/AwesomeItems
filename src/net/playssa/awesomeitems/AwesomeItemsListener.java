@@ -1,11 +1,11 @@
-package net.somethingsuperawesome.awesomeitems;
+package net.playssa.awesomeitems;
 
 
 //import java.util.logging.Logger;
 
 import java.util.logging.Logger;
 
-import net.somethingsuperawesome.awesomeitems.AwesomeItem.Flag;
+import net.playssa.awesomeitems.AwesomeItem.Flag;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
