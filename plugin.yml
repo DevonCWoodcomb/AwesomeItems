@@ -5,3 +5,6 @@ commands:
    awesomeitem:
       usage: /<command> <item>
       aliases: [ai,aweit]
+   newawesomeitem:
+      usage: /<command> <material>
+      aliases: [newai, nai, newaweit]
